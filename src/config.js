@@ -59,7 +59,7 @@ const readFile = (route) => {
 
 const findLinks = (content, filePath) => {
   const linksInFile = [];
-  const linksRegExp = /(?=\[(!\[.+?\]\(.+?\)|.+?)]\(((?:https?|ftp|file):\/\/[^\)]+)\))/gi;
+  const linksRegExp = /(?=\[(!\[.+?\]\(.+?\)|.+?)]\(((?:https?|ftp|file|http):\/\/[^\)]+)\))/gi;
 
   const matches = content.matchAll(linksRegExp);
 for (const match of matches) {
@@ -70,14 +70,6 @@ for (const match of matches) {
 }
   return linksInFile;
 }
-
-/* let match;
-  while ((match = linksRegExp.exec(content)) !== null) {
-      const linkText = match[1];
-      const linkUrl = match[2];
-      const link = { href: linkUrl, text: linkText, file: filePath };
-      linksInFile.push(link);
-  } */
 
 // Con la URL que tenemos de parámetro, verificamos el status y ok.
 
@@ -90,7 +82,11 @@ const statusLink = (url) => {
     });
 
     req.on('error', (err) => {
-      reject(err);
+      if (err.code === "ENOTFOUND") {
+        resolve({ statusCode: 404, message: 'fail' });
+      } else {
+        reject(err);
+      }
     });
   });
 };
