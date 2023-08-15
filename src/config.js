@@ -61,16 +61,23 @@ const findLinks = (content, filePath) => {
   const linksInFile = [];
   const linksRegExp = /(?=\[(!\[.+?\]\(.+?\)|.+?)]\(((?:https?|ftp|file):\/\/[^\)]+)\))/gi;
 
-  let match;
+  const matches = content.matchAll(linksRegExp);
+for (const match of matches) {
+    const linkText = match[1];
+    const linkUrl = match[2];
+    const link = { href: linkUrl, text: linkText, file: filePath };
+    linksInFile.push(link);
+}
+  return linksInFile;
+}
+
+/* let match;
   while ((match = linksRegExp.exec(content)) !== null) {
       const linkText = match[1];
       const linkUrl = match[2];
       const link = { href: linkUrl, text: linkText, file: filePath };
       linksInFile.push(link);
-
-  }
-  return linksInFile;
-}
+  } */
 
 // Con la URL que tenemos de parámetro, verificamos el status y ok.
 
