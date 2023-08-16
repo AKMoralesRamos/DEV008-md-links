@@ -1,36 +1,26 @@
 //const colors = require('colors');
 /* const { error } = require('console'); */
-const {pathIsAbsolute,
+const {
+  pathIsAbsolute,
   routeIsValid,
   isMdFile,
   readFile,
   findLinks,
-  statusLink
-} = require('./config.js');
+  statusLink,
+} = require("./config.js");
 
 const mdLinks = (route, options = { validate: false }) => {
   return new Promise((resolve, reject) => {
     const absolutePath = pathIsAbsolute(route);
-    /* resolve(absolutePath); */
-     routeIsValid(absolutePath)
+    routeIsValid(absolutePath)
       .then(() => {
-        /* resolve("correcto"); */
         const isMd = isMdFile(absolutePath);
-       /*  resolve(isMd); */
         if (isMd) {
           readFile(absolutePath)
             .then((data) => {
-              /* resolve(data); */
               const downLinks = findLinks(data, absolutePath);
-             /*  console.log(downLinks[2].href);
-             statusLink(downLinks[2].href)
-             .then((status) => {
-              resolve(status);
-             }) .catch((error) => {
-              reject (error);
-             }) */
-               const linkPromises = downLinks.map((link) => {
-               // return statusLink(link.href)
+              const linkPromises = downLinks.map((link) => {
+                // return statusLink(link.href)
                 if (options.validate) {
                   return statusLink(link.href)
                     .then((status) => ({
@@ -43,7 +33,7 @@ const mdLinks = (route, options = { validate: false }) => {
                     .catch((error) => {
                       return Promise.reject(error);
                     });
-                 } else {
+                } else {
                   return {
                     href: link.href,
                     text: link.text,
@@ -71,15 +61,12 @@ const mdLinks = (route, options = { validate: false }) => {
   });
 };
 
-
-mdLinks('./prueba.md', { validate: true })
+mdLinks("./prueba.md", { validate: true })
   .then((links) => {
     console.log(links);
   })
   .catch((error) => {
-    console.error('Error:', error);
+    console.error(error);
   });
 
 module.exports = { mdLinks };
-
-

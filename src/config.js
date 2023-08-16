@@ -75,21 +75,21 @@ for (const match of matches) {
 
 const statusLink = (url) => {
   return new Promise((resolve, reject) => {
-    const req = https.get(url, (res) => {
-      const statusCode = res.statusCode;
-      const message = statusCode >= 400 ? 'fail' : 'ok';
-      resolve({ statusCode, message });
-    });
-
-    req.on('error', (err) => {
-      if (err.code === "ENOTFOUND") {
-        resolve({ statusCode: 404, message: 'fail' });
-      } else {
-        reject(err);
-      }
-    });
-  });
-};
+      const req = https.get(url, (res) => {
+          const statusCode = res.statusCode;
+          let message;
+          res.statusCode >= 400 ? message = 'fail' : message = 'ok';
+          resolve({ statusCode, message });
+      });
+      req.on('error', (err) => {
+        if (err.code === "ENOTFOUND") {
+          resolve({ statusCode: 404, message: 'fail' });
+        } else {
+          reject(err);
+        }
+      });
+  })
+}
 
 module.exports = {
     pathIsAbsolute,
