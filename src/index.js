@@ -7,9 +7,15 @@ const {
   readFile,
   findLinks,
   statusLink,
+  simpleStats,
+  statsValidate
 } = require("./config.js");
 
-const mdLinks = (route, options = { validate: false }) => {
+/* const { simpleStats,
+  statsValidate
+} = require("./stats.js") */
+
+const mdLinks = (route, options = { validate: false, stats: false }) => {
   return new Promise((resolve, reject) => {
     const absolutePath = pathIsAbsolute(route);
     routeIsValid(absolutePath)
@@ -43,9 +49,14 @@ const mdLinks = (route, options = { validate: false }) => {
               });
 
               Promise.all(linkPromises)
-                .then((linkResults) => {
+              .then((linkResults) => {
+                 if (options.stats) {
+                  const statsResult = options.validate ? statsValidate(linkResults) : simpleStats(linkResults);
+                  resolve(statsResult);
+                }  else {
                   resolve(linkResults);
-                })
+                }
+              })
                 .catch((error) => {
                   reject(error);
                 });
@@ -61,9 +72,9 @@ const mdLinks = (route, options = { validate: false }) => {
   });
 };
 
-mdLinks("./prueba.md", { validate: true })
-  .then((links) => {
-    console.log(links);
+mdLinks("./prueba.md", { validate: true, stats: false })
+  .then((result) => {
+    console.log(result);
   })
   .catch((error) => {
     console.error(error);

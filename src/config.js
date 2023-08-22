@@ -75,13 +75,13 @@ for (const match of matches) {
 
 const statusLink = (url) => {
   return new Promise((resolve, reject) => {
-      const req = https.get(url, (res) => {
+      const request = https.get(url, (res) => {
           const statusCode = res.statusCode;
           let message;
           res.statusCode >= 400 ? message = 'fail' : message = 'ok';
           resolve({ statusCode, message });
       });
-      req.on('error', (err) => {
+      request.on('error', (err) => {
         if (err.code === "ENOTFOUND") {
           resolve({ statusCode: 404, message: 'fail' });
         } else {
@@ -91,11 +91,57 @@ const statusLink = (url) => {
   })
 }
 
+const totalLinks = (statsLinksArray) => {
+  let linksCounter = 0;
+  statsLinksArray.map((statusLink) => {
+      if(statusLink.href) {
+          linksCounter++;
+      }
+  })
+  return linksCounter;
+}
+
+const uniqueLinks = (statsLinksArray) => {
+  const uniqueLinksArray = [];
+  statsLinksArray.map((statusLink) => {
+      if(!uniqueLinksArray.includes(statusLink.href)) {
+          uniqueLinksArray.push(statusLink.href);
+      }
+  })
+  return uniqueLinksArray.length;
+}
+
+const brokenLinks = (statsLinksArray) => {
+  let brokenCounter = 0;
+  statsLinksArray.map((statusLink) => {
+      if(statusLink.ok === 'fail') {
+          brokenCounter ++;
+      }
+  })
+  return brokenCounter;
+}
+const simpleStats = (statsLinksArray) => {
+  const total = totalLinks(statsLinksArray);
+  const unique = uniqueLinks(statsLinksArray);
+
+  return `Total: ${total},  Unique: ${unique}`;
+}
+
+const statsValidate = (statsLinksArray) => {
+  const total = totalLinks(statsLinksArray);
+  const unique = uniqueLinks(statsLinksArray);
+  const broken = brokenLinks(statsLinksArray);
+
+  return `Total: ${total},  Unique: ${unique},  Broken: ${broken}`;
+}
+
 module.exports = {
     pathIsAbsolute,
     routeIsValid,
     isMdFile,
     readFile,
     findLinks,
-    statusLink
+    statusLink,
+    simpleStats,
+  statsValidate
 };
