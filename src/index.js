@@ -7,8 +7,8 @@ const {
   readFile,
   findLinks,
   statusLink,
-  simpleStats,
-  statsValidate
+  justStats,
+  statsWithValidate,
 } = require("./config.js");
 
 /* const { simpleStats,
@@ -51,7 +51,7 @@ const mdLinks = (route, options = { validate: false, stats: false }) => {
               Promise.all(linkPromises)
               .then((linkResults) => {
                  if (options.stats) {
-                  const statsResult = options.validate ? statsValidate(linkResults) : simpleStats(linkResults);
+                  const statsResult = options.validate ? statsWithValidate(linkResults) : justStats(linkResults);
                   resolve(statsResult);
                 }  else {
                   resolve(linkResults);
@@ -72,7 +72,7 @@ const mdLinks = (route, options = { validate: false, stats: false }) => {
   });
 };
 
-mdLinks("./prueba.md", { validate: true, stats: false })
+mdLinks("./prueba.md", { validate: true, stats: true })
   .then((result) => {
     console.log(result);
   })

@@ -58,27 +58,27 @@ const readFile = (route) => {
 // una expresión regular.
 
 const findLinks = (content, filePath) => {
-  const linksInFile = [];
-  const linksRegExp = /(?=\[(!\[.+?\]\(.+?\)|.+?)]\(((?:https?|ftp|file|http):\/\/[^\)]+)\))/gi;
+  const linksArray = [];
+  const RegExpFindLinks = /(?=\[(!\[.+?\]\(.+?\)|.+?)]\(((?:https?|ftp|file|http):\/\/[^\)]+)\))/gi;
 
-  const matches = content.matchAll(linksRegExp);
+  const matches = content.matchAll(RegExpFindLinks);
 for (const match of matches) {
-    const linkText = match[1];
-    const linkUrl = match[2];
-    const link = { href: linkUrl, text: linkText, file: filePath };
-    linksInFile.push(link);
+    const text = match[1];
+    const url = match[2];
+    const linkObject = { href: url, text: text, file: filePath };
+    linksArray.push(linkObject);
 }
-  return linksInFile;
+  return linksArray;
 }
 
 // Con la URL que tenemos de parámetro, verificamos el status y ok.
 
 const statusLink = (url) => {
   return new Promise((resolve, reject) => {
-      const request = https.get(url, (res) => {
-          const statusCode = res.statusCode;
+      const request = https.get(url, (result) => {
+          const statusCode = result.statusCode;
           let message;
-          res.statusCode >= 400 ? message = 'fail' : message = 'ok';
+          result.statusCode >= 400 ? message = 'fail' : message = 'ok';
           resolve({ statusCode, message });
       });
       request.on('error', (err) => {
@@ -91,9 +91,9 @@ const statusLink = (url) => {
   })
 }
 
-const totalLinks = (statsLinksArray) => {
+const totalLinks = (linksArray) => {
   let linksCounter = 0;
-  statsLinksArray.map((statusLink) => {
+    linksArray.map((statusLink) => {
       if(statusLink.href) {
           linksCounter++;
       }
@@ -101,9 +101,9 @@ const totalLinks = (statsLinksArray) => {
   return linksCounter;
 }
 
-const uniqueLinks = (statsLinksArray) => {
+const uniqueLinks = (linksArray) => {
   const uniqueLinksArray = [];
-  statsLinksArray.map((statusLink) => {
+   linksArray.map((statusLink) => {
       if(!uniqueLinksArray.includes(statusLink.href)) {
           uniqueLinksArray.push(statusLink.href);
       }
@@ -111,28 +111,28 @@ const uniqueLinks = (statsLinksArray) => {
   return uniqueLinksArray.length;
 }
 
-const brokenLinks = (statsLinksArray) => {
-  let brokenCounter = 0;
-  statsLinksArray.map((statusLink) => {
+const brokenLinks = (linksArray) => {
+  let brokenLinksCounter = 0;
+   linksArray.map((statusLink) => {
       if(statusLink.ok === 'fail') {
-          brokenCounter ++;
+          brokenLinksCounter ++;
       }
   })
-  return brokenCounter;
+  return brokenLinksCounter;
 }
-const simpleStats = (statsLinksArray) => {
-  const total = totalLinks(statsLinksArray);
-  const unique = uniqueLinks(statsLinksArray);
+const justStats = (linksArray) => {
+  const total = totalLinks(linksArray);
+  const unique = uniqueLinks(linksArray);
 
-  return `Total: ${total},  Unique: ${unique}`;
+  return `Total: ${total} links,  Unique: ${unique} links`;
 }
 
-const statsValidate = (statsLinksArray) => {
-  const total = totalLinks(statsLinksArray);
-  const unique = uniqueLinks(statsLinksArray);
-  const broken = brokenLinks(statsLinksArray);
+const statsWithValidate = (linksArray) => {
+  const total = totalLinks(linksArray);
+  const unique = uniqueLinks(linksArray);
+  const broken = brokenLinks(linksArray);
 
-  return `Total: ${total},  Unique: ${unique},  Broken: ${broken}`;
+  return `Total: ${total} links,  Unique: ${unique} links,  Broken: ${broken} links`;
 }
 
 module.exports = {
@@ -142,6 +142,9 @@ module.exports = {
     readFile,
     findLinks,
     statusLink,
-    simpleStats,
-  statsValidate
+    totalLinks,
+    uniqueLinks,
+    brokenLinks,
+    justStats,
+  statsWithValidate
 };
