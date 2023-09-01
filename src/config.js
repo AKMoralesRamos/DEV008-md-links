@@ -30,18 +30,57 @@ const routeIsValid = (route) => {
 
 // Validar si el archivo tiene una extensión .md
 
-const isMdFile = (route) => {
+const isMdFileOrDirectory = (route) => {
+  try {
+    const stats = fs.statSync(route);
+    if (stats.isDirectory()) {
+      return true;
+    } else if (path.extname(route) === ".md") {
+      return true;
+    }
+  } catch (error) {
+    return false;
+  }
+};
+
+/* const isMdFile = (route) => {
   const mdFile = path.extname(route);
   if (mdFile !== ".md") {
     throw new Error('No se encontraron archivos .md');
   } else {
     return true;
   }
+}; */
+
+// Si el archivo es .md o directorio haremos la lectura y retornamos la data como string
+
+const readFileOrDirectory = (route) => {
+  let arrayFiles = [];
+
+  const stats = fs.statSync(route);
+
+  if (stats.isFile() && path.extname(route) === '.md') {
+    arrayFiles.push(route);
+  } else if (stats.isDirectory()) {
+    const files = fs.readdirSync(route, 'utf-8');
+    files.forEach((file) => {
+      const newRoute = path.join(route, file);
+      const statsNew = fs.statSync(newRoute);
+
+      if (statsNew.isFile() && path.extname(newRoute) === '.md') {
+        arrayFiles.push(newRoute);
+      } else if (statsNew.isDirectory()) {
+        arrayFiles = arrayFiles.concat(readFileOrDirectory(newRoute));
+      }
+    });
+  }
+
+  return arrayFiles;
+
 };
 
-// Si el archivo es .md haremos la lectura del archivo.
 
-const readFile = (route) => {
+/* const readFiles = (route) => {
   return new Promise((resolve, reject) => {
     fs.readFile(route, (err, data) => {
       if (err) {
@@ -51,23 +90,44 @@ const readFile = (route) => {
       }
     });
   });
-}
+} */
+
+
+const readFiles = (arrayFiles) => {
+  const newFiles = arrayFiles.map((file) => {
+    const absolutePath = path.resolve(file); // Obtener la ruta absoluta del archivo
+    return new Promise((resolve, reject) => {
+      fs.readFile(absolutePath, 'utf-8', (error, data) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve({ path: absolutePath, data: data }); // Devolver la ruta y los datos leídos
+        }
+      });
+    });
+  });
+console.log (Promise.all(newFiles));
+  return Promise.all(newFiles);
+};
 
 
 // Ahora con la lectura del archivo, buscaremos el texto y link en base a
 // una expresión regular.
 
-const findLinks = (content, filePath) => {
+const findLinks = (content) => {
   const linksArray = [];
   const RegExpFindLinks = /(?=\[(!\[.+?\]\(.+?\)|.+?)]\(((?:https?|ftp|file|http):\/\/[^\)]+)\))/gi;
 
-  const matches = content.matchAll(RegExpFindLinks);
-for (const match of matches) {
-    const text = match[1];
-    const url = match[2];
-    const linkObject = { href: url, text: text, file: filePath };
-    linksArray.push(linkObject);
-}
+  content.forEach(contentObj => {
+    const matches = contentObj.data.matchAll(RegExpFindLinks);
+    for (const match of matches) {
+      const text = match[1];
+      const url = match[2];
+      const linkObject = { href: url, text: text, file: contentObj.path };
+      linksArray.push(linkObject);
+    }
+  });
+
   return linksArray;
 }
 
@@ -138,8 +198,9 @@ const statsWithValidate = (linksArray) => {
 module.exports = {
     pathIsAbsolute,
     routeIsValid,
-    isMdFile,
-    readFile,
+    isMdFileOrDirectory,
+    readFileOrDirectory,
+    readFiles,
     findLinks,
     statusLink,
     totalLinks,

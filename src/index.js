@@ -1,32 +1,27 @@
-//const colors = require('colors');
-/* const { error } = require('console'); */
 const {
   pathIsAbsolute,
   routeIsValid,
-  isMdFile,
-  readFile,
+  isMdFileOrDirectory,
+  readFileOrDirectory,
+  readFiles,
   findLinks,
   statusLink,
   justStats,
   statsWithValidate,
 } = require("./config.js");
 
-/* const { simpleStats,
-  statsValidate
-} = require("./stats.js") */
-
 const mdLinks = (route, options = { validate: false, stats: false }) => {
   return new Promise((resolve, reject) => {
     const absolutePath = pathIsAbsolute(route);
-    routeIsValid(absolutePath)
+   routeIsValid(absolutePath)
       .then(() => {
-        const isMd = isMdFile(absolutePath);
-        if (isMd) {
-          readFile(absolutePath)
+        const itIs = isMdFileOrDirectory(absolutePath);
+         if (itIs) {
+          const filesArray = readFileOrDirectory(absolutePath);
+          readFiles(filesArray)
             .then((data) => {
-              const downLinks = findLinks(data, absolutePath);
+              const downLinks = findLinks(data);
               const linkPromises = downLinks.map((link) => {
-                // return statusLink(link.href)
                 if (options.validate) {
                   return statusLink(link.href)
                     .then((status) => ({
@@ -72,12 +67,12 @@ const mdLinks = (route, options = { validate: false, stats: false }) => {
   });
 };
 
-mdLinks("./prueba.md", { validate: true, stats: true })
+/* mdLinks("./archivos", { validate: true, stats: false })
   .then((result) => {
     console.log(result);
   })
   .catch((error) => {
     console.error(error);
-  });
+  }); */
 
 module.exports = { mdLinks };
