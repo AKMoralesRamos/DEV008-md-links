@@ -2,8 +2,6 @@ const path = require('path');
 const fs = require('fs');
 const https = require('https');
 
-// Funciones puras
-
 // Validar ruta, convertir a ruta absoluta.
 
 const pathIsAbsolute = (route) => {
@@ -43,16 +41,8 @@ const isMdFileOrDirectory = (route) => {
   }
 };
 
-/* const isMdFile = (route) => {
-  const mdFile = path.extname(route);
-  if (mdFile !== ".md") {
-    throw new Error('No se encontraron archivos .md');
-  } else {
-    return true;
-  }
-}; */
 
-// Si el archivo es .md o directorio haremos la lectura y retornamos la data como string
+// Si el archivo es .md o directorio haremos la lectura
 
 const readFileOrDirectory = (route) => {
   let arrayFiles = [];
@@ -80,19 +70,6 @@ const readFileOrDirectory = (route) => {
 };
 
 
-/* const readFiles = (route) => {
-  return new Promise((resolve, reject) => {
-    fs.readFile(route, (err, data) => {
-      if (err) {
-        reject('No se puede leer el archivo');
-      } else {
-        resolve(data.toString());
-      }
-    });
-  });
-} */
-
-
 const readFiles = (arrayFiles) => {
   const newFiles = arrayFiles.map((file) => {
     const absolutePath = path.resolve(file); // Obtener la ruta absoluta del archivo
@@ -106,13 +83,12 @@ const readFiles = (arrayFiles) => {
       });
     });
   });
-console.log (Promise.all(newFiles));
+
   return Promise.all(newFiles);
 };
 
 
-// Ahora con la lectura del archivo, buscaremos el texto y link en base a
-// una expresión regular.
+// Ahora con la lectura del archivo, buscaremos el texto y link en base a una expresión regular.
 
 const findLinks = (content) => {
   const linksArray = [];
