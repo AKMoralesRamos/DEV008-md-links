@@ -10,7 +10,7 @@
 
 ***
 <p align="center">
-  <img src="./src/mdImage.PNG" alt=".md">
+  <img src="./test/mdImage.PNG" alt=".md">
 </p>
 
 ## 1. Description
@@ -73,5 +73,5 @@ You will be able to retrieve the links found in Markdown files after providing a
 
 ## 5. Flowchart
 
-![Flowchart](./src/mdLinks1.PNG)
-![Flowchart](./src/mdLinks2.PNG)
+![Flowchart](./test/mdLinks1.PNG)
+![Flowchart](./test/mdLinks2.PNG)

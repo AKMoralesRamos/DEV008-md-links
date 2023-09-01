@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 const { mdLinks } = require('./index');
 
 const route = process.argv[2]
