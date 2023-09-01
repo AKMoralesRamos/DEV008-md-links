@@ -1,4 +1,4 @@
-const { mdLinks } = require('./index.js');
+const { mdLinks } = require('./index');
 
 const route = process.argv[2]
 const validateOption = process.argv.includes('--validate');
